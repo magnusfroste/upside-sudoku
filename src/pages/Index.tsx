@@ -12,12 +12,14 @@ import { PlayerStats } from '@/components/game/PlayerStats';
 import { VictoryPopup } from '@/components/game/VictoryPopup';
 import { DailyChallengeCard } from '@/components/game/DailyChallengeCard';
 import { SoundControls } from '@/components/game/SoundControls';
+import { Tutorial } from '@/components/game/Tutorial';
 
 type Screen = 'menu' | 'worldMap' | 'puzzleSelect' | 'game';
 
 export default function Index() {
   const [screen, setScreen] = useState<Screen>('menu');
   const [selectedWorld, setSelectedWorld] = useState<number>(1);
+  const [showTutorial, setShowTutorial] = useState(false);
 
   const {
     gameState,
@@ -36,9 +38,18 @@ export default function Index() {
     updateProfile,
     resetProgress,
     setShowingVictory,
+    completeTutorial,
+    resetTutorial,
   } = useGameState();
 
   const sounds = useSounds();
+
+  // Show tutorial for new players
+  useEffect(() => {
+    if (!progress.tutorialCompleted && screen === 'menu') {
+      setShowTutorial(true);
+    }
+  }, [progress.tutorialCompleted, screen]);
 
   // Play victory sound when showing victory
   useEffect(() => {
@@ -46,6 +57,23 @@ export default function Index() {
       sounds.playVictory();
     }
   }, [showingVictory]);
+
+  const handleTutorialComplete = useCallback(() => {
+    sounds.playClick();
+    completeTutorial();
+    setShowTutorial(false);
+  }, [completeTutorial, sounds]);
+
+  const handleTutorialSkip = useCallback(() => {
+    sounds.playClick();
+    completeTutorial();
+    setShowTutorial(false);
+  }, [completeTutorial, sounds]);
+
+  const handleShowTutorial = useCallback(() => {
+    sounds.playClick();
+    setShowTutorial(true);
+  }, [sounds]);
 
   const handleStartGame = useCallback(() => {
     sounds.playClick();
@@ -144,6 +172,14 @@ export default function Index() {
 
   return (
     <div className="min-h-screen bg-background text-foreground p-4 sm:p-6">
+      {/* Tutorial */}
+      {showTutorial && (
+        <Tutorial
+          onComplete={handleTutorialComplete}
+          onSkip={handleTutorialSkip}
+        />
+      )}
+
       {/* Sound Controls - always visible */}
       <div className="fixed top-4 right-4 z-40">
         <SoundControls
@@ -160,6 +196,7 @@ export default function Index() {
           progress={progress}
           onUpdateProfile={updateProfile}
           onResetProgress={resetProgress}
+          onShowTutorial={handleShowTutorial}
         />
       )}
 

@@ -328,6 +328,20 @@ export function useGameState() {
     return progress.dailyChallenges[todayKey]?.completed || false;
   }, [progress.dailyChallenges]);
 
+  const completeTutorial = useCallback(() => {
+    setProgress(prev => ({
+      ...prev,
+      tutorialCompleted: true,
+    }));
+  }, [setProgress]);
+
+  const resetTutorial = useCallback(() => {
+    setProgress(prev => ({
+      ...prev,
+      tutorialCompleted: false,
+    }));
+  }, [setProgress]);
+
   return {
     gameState,
     progress,
@@ -346,5 +360,7 @@ export function useGameState() {
     resetProgress,
     setShowingVictory,
     isTodayCompleted,
+    completeTutorial,
+    resetTutorial,
   };
 }

@@ -1,6 +1,6 @@
 import { PlayerProgress, BADGES, calculateLevel, xpToNextLevel, XP_PER_LEVEL, AVATARS } from '@/lib/gameData';
 import { cn } from '@/lib/utils';
-import { Star, Zap, Flame, Trophy, Settings, Calendar } from 'lucide-react';
+import { Star, Zap, Flame, Trophy, Settings, Calendar, BookOpen } from 'lucide-react';
 import { useState } from 'react';
 import {
   Dialog,
@@ -13,9 +13,10 @@ interface PlayerStatsProps {
   progress: PlayerProgress;
   onUpdateProfile: (name: string, avatar: string) => void;
   onResetProgress: () => void;
+  onShowTutorial: () => void;
 }
 
-export function PlayerStats({ progress, onUpdateProfile, onResetProgress }: PlayerStatsProps) {
+export function PlayerStats({ progress, onUpdateProfile, onResetProgress, onShowTutorial }: PlayerStatsProps) {
   const [showSettings, setShowSettings] = useState(false);
   const [editName, setEditName] = useState(progress.name);
   const [editAvatar, setEditAvatar] = useState(progress.avatar);
@@ -172,6 +173,18 @@ export function PlayerStats({ progress, onUpdateProfile, onResetProgress }: Play
               <p>Bästa daglig streak: <span className="text-accent">{progress.bestDailyStreak}</span></p>
               <p>Total XP: <span className="text-secondary">{progress.xp}</span></p>
             </div>
+
+            {/* Tutorial button */}
+            <button
+              onClick={() => {
+                onShowTutorial();
+                setShowSettings(false);
+              }}
+              className="w-full flex items-center justify-center gap-2 py-3 border-2 border-secondary/50 rounded-lg font-retro text-secondary hover:bg-secondary/10 transition-colors"
+            >
+              <BookOpen className="w-4 h-4" />
+              Visa tutorial igen
+            </button>
 
             {/* Save button */}
             <button
