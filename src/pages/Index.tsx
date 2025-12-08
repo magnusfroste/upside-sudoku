@@ -1,5 +1,6 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useGameState } from '@/hooks/useGameState';
+import { useSounds } from '@/hooks/useSounds';
 import { WORLDS } from '@/lib/gameData';
 import { MainMenu } from '@/components/game/MainMenu';
 import { WorldMap } from '@/components/game/WorldMap';
@@ -10,6 +11,7 @@ import { NumberPad } from '@/components/game/NumberPad';
 import { PlayerStats } from '@/components/game/PlayerStats';
 import { VictoryPopup } from '@/components/game/VictoryPopup';
 import { DailyChallengeCard } from '@/components/game/DailyChallengeCard';
+import { SoundControls } from '@/components/game/SoundControls';
 
 type Screen = 'menu' | 'worldMap' | 'puzzleSelect' | 'game';
 
@@ -34,61 +36,124 @@ export default function Index() {
     updateProfile,
     resetProgress,
     setShowingVictory,
-    isTodayCompleted,
   } = useGameState();
 
+  const sounds = useSounds();
+
+  // Play victory sound when showing victory
+  useEffect(() => {
+    if (showingVictory) {
+      sounds.playVictory();
+    }
+  }, [showingVictory]);
+
   const handleStartGame = useCallback(() => {
+    sounds.playClick();
+    sounds.initialize();
     setScreen('worldMap');
-  }, []);
+  }, [sounds]);
 
   const handleSelectWorld = useCallback((worldId: number) => {
+    sounds.playClick();
     setSelectedWorld(worldId);
     setScreen('puzzleSelect');
-  }, []);
+  }, [sounds]);
 
   const handleSelectPuzzle = useCallback((worldId: number, puzzleIndex: number) => {
+    sounds.playClick();
     setSelectedWorld(worldId);
     startPuzzle(worldId, puzzleIndex);
     setScreen('game');
-  }, [startPuzzle]);
+  }, [startPuzzle, sounds]);
 
   const handleStartDaily = useCallback(() => {
+    sounds.playClick();
     startDailyChallenge();
     setScreen('game');
-  }, [startDailyChallenge]);
+  }, [startDailyChallenge, sounds]);
 
   const handleBackToMap = useCallback(() => {
+    sounds.playClick();
     setShowingVictory(false);
     setScreen('worldMap');
-  }, [setShowingVictory]);
+  }, [setShowingVictory, sounds]);
 
   const handleBackToPuzzles = useCallback(() => {
+    sounds.playClick();
     if (gameState.isDaily) {
       setScreen('worldMap');
     } else {
       setScreen('puzzleSelect');
     }
-  }, [gameState.isDaily]);
+  }, [gameState.isDaily, sounds]);
 
   const handleNextPuzzle = useCallback(() => {
+    sounds.playClick();
     const world = WORLDS.find(w => w.id === gameState.currentWorld)!;
     const nextIndex = gameState.currentPuzzle + 1;
     if (nextIndex < world.puzzleCount) {
       startPuzzle(gameState.currentWorld, nextIndex);
       setShowingVictory(false);
     }
-  }, [gameState.currentWorld, gameState.currentPuzzle, startPuzzle, setShowingVictory]);
+  }, [gameState.currentWorld, gameState.currentPuzzle, startPuzzle, setShowingVictory, sounds]);
 
   const handleReplay = useCallback(() => {
+    sounds.playClick();
     startPuzzle(gameState.currentWorld, gameState.currentPuzzle);
     setShowingVictory(false);
-  }, [gameState.currentWorld, gameState.currentPuzzle, startPuzzle, setShowingVictory]);
+  }, [gameState.currentWorld, gameState.currentPuzzle, startPuzzle, setShowingVictory, sounds]);
+
+  const handleCellClick = useCallback((row: number, col: number) => {
+    sounds.playSelect();
+    selectCell(row, col);
+  }, [selectCell, sounds]);
+
+  const handleNumberClick = useCallback((value: number) => {
+    sounds.playNumber(value);
+    
+    // Check if this will be correct or error
+    if (gameState.selectedCell) {
+      const [row, col] = gameState.selectedCell;
+      const isCorrect = value === gameState.solution[row][col];
+      
+      // Play sound after a tiny delay to let the number sound play first
+      setTimeout(() => {
+        if (isCorrect) {
+          sounds.playCorrect();
+        } else {
+          sounds.playError();
+        }
+      }, 100);
+    }
+    
+    makeMove(value);
+  }, [makeMove, sounds, gameState.selectedCell, gameState.solution]);
+
+  const handleClear = useCallback(() => {
+    sounds.playClick();
+    clearCell();
+  }, [clearCell, sounds]);
+
+  const handleUseHint = useCallback(() => {
+    sounds.playHint();
+    useHint();
+  }, [useHint, sounds]);
 
   const currentWorld = WORLDS.find(w => w.id === gameState.currentWorld);
   const gridSize = gameState.isDaily ? 6 : (currentWorld?.gridSize || 4);
 
   return (
     <div className="min-h-screen bg-background text-foreground p-4 sm:p-6">
+      {/* Sound Controls - always visible */}
+      <div className="fixed top-4 right-4 z-40">
+        <SoundControls
+          musicEnabled={sounds.settings.musicEnabled}
+          sfxEnabled={sounds.settings.sfxEnabled}
+          onToggleMusic={sounds.toggleMusic}
+          onToggleSfx={sounds.toggleSfx}
+        />
+      </div>
+
       {/* Player stats - shown on all screens except menu */}
       {screen !== 'menu' && (
         <PlayerStats
@@ -142,7 +207,7 @@ export default function Index() {
             hintsRemaining={gameState.hintsRemaining}
             isDaily={gameState.isDaily}
             onToggleTimer={toggleTimer}
-            onUseHint={useHint}
+            onUseHint={handleUseHint}
             onBack={handleBackToPuzzles}
           />
 
@@ -154,13 +219,13 @@ export default function Index() {
             errors={gameState.errors}
             hintCell={gameState.hintCell}
             gridSize={gridSize}
-            onCellClick={selectCell}
+            onCellClick={handleCellClick}
           />
 
           <NumberPad
             gridSize={gridSize}
-            onNumberClick={makeMove}
-            onClear={clearCell}
+            onNumberClick={handleNumberClick}
+            onClear={handleClear}
             disabled={gameState.isComplete}
           />
         </div>
@@ -180,6 +245,7 @@ export default function Index() {
           onNextPuzzle={handleNextPuzzle}
           onReplay={handleReplay}
           onBackToMap={handleBackToMap}
+          onPlayStarSound={sounds.playStar}
         />
       )}
 

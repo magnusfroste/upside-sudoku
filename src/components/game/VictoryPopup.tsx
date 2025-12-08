@@ -1,4 +1,5 @@
-import { Badge, WORLDS, XP_PER_STAR, DAILY_BONUS_XP } from '@/lib/gameData';
+import { useEffect } from 'react';
+import { Badge, WORLDS, XP_PER_STAR } from '@/lib/gameData';
 import { cn } from '@/lib/utils';
 import { Star, Trophy, Zap, ArrowRight, RotateCcw, Calendar, Flame } from 'lucide-react';
 
@@ -14,6 +15,7 @@ interface VictoryPopupProps {
   onNextPuzzle: () => void;
   onReplay: () => void;
   onBackToMap: () => void;
+  onPlayStarSound?: (starNumber: number) => void;
 }
 
 export function VictoryPopup({
@@ -28,11 +30,23 @@ export function VictoryPopup({
   onNextPuzzle,
   onReplay,
   onBackToMap,
+  onPlayStarSound,
 }: VictoryPopupProps) {
   const world = WORLDS.find(w => w.id === worldId);
   const isLastPuzzle = world ? puzzleIndex >= world.puzzleCount - 1 : true;
   const xpEarned = stars * XP_PER_STAR;
   const totalXP = xpEarned + bonusXP;
+
+  // Play star sounds with delay
+  useEffect(() => {
+    if (onPlayStarSound) {
+      for (let i = 1; i <= stars; i++) {
+        setTimeout(() => {
+          onPlayStarSound(i);
+        }, i * 300);
+      }
+    }
+  }, [stars, onPlayStarSound]);
 
   return (
     <div className="fixed inset-0 bg-background/90 flex items-center justify-center z-50 p-4">
