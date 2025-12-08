@@ -15,7 +15,14 @@ export interface Badge {
   description: string;
   icon: string;
   requirement: number;
-  type: 'puzzles' | 'streak' | 'noHints' | 'speed' | 'stars';
+  type: 'puzzles' | 'streak' | 'noHints' | 'speed' | 'stars' | 'daily';
+}
+
+export interface DailyChallenge {
+  date: string;
+  completed: boolean;
+  stars: number;
+  bestTime: number | null;
 }
 
 export interface PlayerProgress {
@@ -30,6 +37,9 @@ export interface PlayerProgress {
   badges: string[];
   worldProgress: Record<number, number[]>;
   bestTimes: Record<string, number>;
+  dailyChallenges: Record<string, DailyChallenge>;
+  dailyStreak: number;
+  bestDailyStreak: number;
 }
 
 export const WORLDS: World[] = [
@@ -96,6 +106,9 @@ export const BADGES: Badge[] = [
   { id: 'speed_demon', name: 'Snabbis!', description: 'Lös ett pussel på under 60 sekunder', icon: '⚡', requirement: 60, type: 'speed' },
   { id: 'star_collector', name: 'Stjärnsamlare', description: 'Samla 30 stjärnor', icon: '✨', requirement: 30, type: 'stars' },
   { id: 'star_master', name: 'Stjärnmästare', description: 'Samla 100 stjärnor', icon: '🌠', requirement: 100, type: 'stars' },
+  { id: 'daily_first', name: 'Första Dagliga!', description: 'Klara din första dagliga utmaning', icon: '📅', requirement: 1, type: 'daily' },
+  { id: 'daily_7', name: 'Vecko-Mästare', description: '7 dagliga utmaningar i rad', icon: '🗓️', requirement: 7, type: 'daily' },
+  { id: 'daily_30', name: 'Månads-Legend', description: '30 dagliga utmaningar i rad', icon: '📆', requirement: 30, type: 'daily' },
 ];
 
 export const AVATARS = ['🧒', '👧', '🦸', '🧙', '🤖', '👽', '🐱', '🦊'];
@@ -105,6 +118,8 @@ export const SYMBOLS_6X6 = ['1', '2', '3', '4', '5', '6'];
 
 export const XP_PER_STAR = 25;
 export const XP_PER_LEVEL = 100;
+export const DAILY_BONUS_XP = 50;
+export const DAILY_STREAK_BONUS = 10;
 
 export function calculateLevel(xp: number): number {
   return Math.floor(xp / XP_PER_LEVEL) + 1;
@@ -116,6 +131,23 @@ export function xpToNextLevel(xp: number): number {
 
 export function getUnlockedWorlds(totalStars: number): number[] {
   return WORLDS.filter(w => totalStars >= w.requiredStars).map(w => w.id);
+}
+
+export function getTodayKey(): string {
+  const today = new Date();
+  return `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+}
+
+export function getDailyDifficulty(): number {
+  // Vary difficulty based on day of week (easier on weekends)
+  const dayOfWeek = new Date().getDay();
+  if (dayOfWeek === 0 || dayOfWeek === 6) return 4; // Weekend - easier
+  return 5 + Math.floor(dayOfWeek / 2); // Weekdays - harder
+}
+
+export function getDailySeed(): number {
+  const today = new Date();
+  return today.getFullYear() * 10000 + (today.getMonth() + 1) * 100 + today.getDate();
 }
 
 export function checkNewBadges(progress: PlayerProgress, noHintsUsed: boolean, timeSeconds: number): Badge[] {
@@ -141,6 +173,9 @@ export function checkNewBadges(progress: PlayerProgress, noHintsUsed: boolean, t
       case 'stars':
         earned = progress.totalStars >= badge.requirement;
         break;
+      case 'daily':
+        earned = progress.dailyStreak >= badge.requirement;
+        break;
     }
     
     if (earned) {
@@ -163,4 +198,7 @@ export const DEFAULT_PROGRESS: PlayerProgress = {
   badges: [],
   worldProgress: {},
   bestTimes: {},
+  dailyChallenges: {},
+  dailyStreak: 0,
+  bestDailyStreak: 0,
 };

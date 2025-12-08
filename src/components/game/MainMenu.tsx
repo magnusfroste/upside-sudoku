@@ -1,6 +1,6 @@
 import { PlayerProgress } from '@/lib/gameData';
 import { cn } from '@/lib/utils';
-import { Play, Trophy, Star } from 'lucide-react';
+import { Play, Trophy, Star, Calendar, Flame } from 'lucide-react';
 
 interface MainMenuProps {
   progress: PlayerProgress;
@@ -41,7 +41,7 @@ export function MainMenu({ progress, onStartGame }: MainMenuProps) {
 
       {/* Quick stats if returning player */}
       {progress.puzzlesSolved > 0 && (
-        <div className="flex items-center gap-6 mb-8 font-retro text-lg">
+        <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 mb-8 font-retro text-lg">
           <div className="flex items-center gap-2 text-accent">
             <Star className="w-5 h-5 fill-current" />
             <span>{progress.totalStars} stjärnor</span>
@@ -50,6 +50,12 @@ export function MainMenu({ progress, onStartGame }: MainMenuProps) {
             <Trophy className="w-5 h-5" />
             <span>{progress.puzzlesSolved} pussel</span>
           </div>
+          {progress.dailyStreak > 0 && (
+            <div className="flex items-center gap-2 text-neon-red">
+              <Flame className="w-5 h-5" />
+              <span>{progress.dailyStreak} dagars streak</span>
+            </div>
+          )}
         </div>
       )}
 

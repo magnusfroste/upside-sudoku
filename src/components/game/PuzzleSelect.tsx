@@ -29,7 +29,7 @@ export function PuzzleSelect({ worldId, progress, onSelectPuzzle, onBack }: Puzz
       {/* World info */}
       <div className="text-center mb-8">
         <div className="text-5xl mb-3 animate-float">{world.icon}</div>
-        <h2 className={cn('font-pixel text-xl text-glow-pink mb-2', `text-${world.color}`)}>
+        <h2 className="font-pixel text-xl text-primary text-glow-pink mb-2">
           {world.name}
         </h2>
         <p className="font-retro text-muted-foreground">{world.description}</p>
@@ -53,8 +53,8 @@ export function PuzzleSelect({ worldId, progress, onSelectPuzzle, onBack }: Puzz
                 'flex flex-col items-center justify-center gap-1',
                 'hover:scale-105 active:scale-95',
                 isCompleted
-                  ? 'border-neon-green/50 bg-neon-green/10 hover:border-neon-green box-glow-green'
-                  : 'border-secondary/30 bg-card/50 hover:border-secondary hover:box-glow-blue'
+                  ? 'border-neon-green/50 bg-neon-green/10 hover:border-neon-green'
+                  : 'border-secondary/30 bg-card/50 hover:border-secondary'
               )}
             >
               {isCompleted ? (

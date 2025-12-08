@@ -1,6 +1,10 @@
 import { useState, useCallback, useEffect } from 'react';
-import { generatePuzzle, isPuzzleComplete, getHint, getDifficulty, Grid, GridSize } from '@/lib/sudoku';
-import { PlayerProgress, DEFAULT_PROGRESS, WORLDS, XP_PER_STAR, checkNewBadges, calculateLevel, Badge } from '@/lib/gameData';
+import { generatePuzzle, isPuzzleComplete, getHint, getDifficulty, Grid } from '@/lib/sudoku';
+import { 
+  PlayerProgress, DEFAULT_PROGRESS, WORLDS, XP_PER_STAR, 
+  checkNewBadges, calculateLevel, Badge, getTodayKey, 
+  getDailyDifficulty, getDailySeed, DAILY_BONUS_XP, DAILY_STREAK_BONUS 
+} from '@/lib/gameData';
 import { useLocalStorage } from './useLocalStorage';
 
 export interface GameState {
@@ -18,9 +22,11 @@ export interface GameState {
   elapsedTime: number;
   timerEnabled: boolean;
   usedHints: boolean;
+  isDaily: boolean;
 }
 
 const MAX_HINTS = 3;
+const DAILY_HINTS = 2; // Fewer hints for daily challenge
 
 export function useGameState() {
   const [progress, setProgress] = useLocalStorage<PlayerProgress>('upside-down-sudoku-progress', DEFAULT_PROGRESS);
@@ -40,11 +46,13 @@ export function useGameState() {
     elapsedTime: 0,
     timerEnabled: true,
     usedHints: false,
+    isDaily: false,
   });
 
   const [showingVictory, setShowingVictory] = useState(false);
   const [earnedStars, setEarnedStars] = useState(0);
   const [newBadges, setNewBadges] = useState<Badge[]>([]);
+  const [bonusXP, setBonusXP] = useState(0);
 
   // Timer effect
   useEffect(() => {
@@ -80,12 +88,43 @@ export function useGameState() {
       elapsedTime: 0,
       timerEnabled: true,
       usedHints: false,
+      isDaily: false,
     });
     setShowingVictory(false);
+    setBonusXP(0);
+  }, []);
+
+  const startDailyChallenge = useCallback(() => {
+    const todayKey = getTodayKey();
+    const seed = getDailySeed();
+    const difficulty = getDailyDifficulty();
+    
+    // Daily challenges use 6x6 grid
+    const { puzzle, solution } = generatePuzzle(6, difficulty, seed);
+
+    setGameState({
+      currentWorld: 0, // 0 indicates daily challenge
+      currentPuzzle: 0,
+      puzzle,
+      solution,
+      playerGrid: puzzle.map(row => [...row]),
+      selectedCell: null,
+      hintsRemaining: DAILY_HINTS,
+      hintCell: null,
+      errors: new Set(),
+      isComplete: false,
+      startTime: Date.now(),
+      elapsedTime: 0,
+      timerEnabled: true,
+      usedHints: false,
+      isDaily: true,
+    });
+    setShowingVictory(false);
+    setBonusXP(0);
   }, []);
 
   const selectCell = useCallback((row: number, col: number) => {
-    if (gameState.puzzle[row]?.[col] !== null) return; // Can't select fixed cells
+    if (gameState.puzzle[row]?.[col] !== null) return;
     setGameState(prev => ({
       ...prev,
       selectedCell: [row, col],
@@ -161,12 +200,15 @@ export function useGameState() {
       usedHints: true,
     }));
 
-    // Auto-fill after a short delay
     setTimeout(() => {
       setGameState(prev => {
         const newGrid = prev.playerGrid.map(r => [...r]);
         newGrid[row][col] = value;
         const complete = isPuzzleComplete(newGrid, prev.solution);
+        
+        if (complete) {
+          setTimeout(() => handleVictory(prev.errors.size === 0), 100);
+        }
         
         return {
           ...prev,
@@ -186,24 +228,68 @@ export function useGameState() {
     if (timeSeconds < 120 && noErrors) stars = 3;
     else if (timeSeconds < 180 || noErrors) stars = 2;
 
-    const xpEarned = stars * XP_PER_STAR;
+    let xpEarned = stars * XP_PER_STAR;
+    let dailyBonusEarned = 0;
 
-    const newProgress: PlayerProgress = {
-      ...progress,
-      xp: progress.xp + xpEarned,
-      level: calculateLevel(progress.xp + xpEarned),
-      totalStars: progress.totalStars + stars,
-      puzzlesSolved: progress.puzzlesSolved + 1,
-      currentStreak: progress.currentStreak + 1,
-      bestStreak: Math.max(progress.bestStreak, progress.currentStreak + 1),
-      worldProgress: {
+    const newProgress: PlayerProgress = { ...progress };
+
+    if (gameState.isDaily) {
+      const todayKey = getTodayKey();
+      const yesterdayDate = new Date();
+      yesterdayDate.setDate(yesterdayDate.getDate() - 1);
+      const yesterdayKey = `${yesterdayDate.getFullYear()}-${String(yesterdayDate.getMonth() + 1).padStart(2, '0')}-${String(yesterdayDate.getDate()).padStart(2, '0')}`;
+      
+      // Check if continuing streak
+      const hadYesterdayChallenge = progress.dailyChallenges[yesterdayKey]?.completed;
+      const isFirstDaily = !progress.dailyChallenges[todayKey]?.completed;
+      
+      if (isFirstDaily) {
+        // Calculate daily streak
+        const newDailyStreak = hadYesterdayChallenge ? progress.dailyStreak + 1 : 1;
+        newProgress.dailyStreak = newDailyStreak;
+        newProgress.bestDailyStreak = Math.max(newProgress.bestDailyStreak, newDailyStreak);
+        
+        // Daily bonus XP
+        dailyBonusEarned = DAILY_BONUS_XP + (newDailyStreak * DAILY_STREAK_BONUS);
+        xpEarned += dailyBonusEarned;
+        
+        // Save daily challenge completion
+        newProgress.dailyChallenges = {
+          ...progress.dailyChallenges,
+          [todayKey]: {
+            date: todayKey,
+            completed: true,
+            stars,
+            bestTime: timeSeconds,
+          },
+        };
+      }
+    } else {
+      // Regular puzzle progress
+      newProgress.worldProgress = {
         ...progress.worldProgress,
         [gameState.currentWorld]: [
           ...(progress.worldProgress[gameState.currentWorld] || []),
           gameState.currentPuzzle,
         ].filter((v, i, a) => a.indexOf(v) === i),
-      },
-    };
+      };
+
+      // Save best time
+      const puzzleKey = `${gameState.currentWorld}-${gameState.currentPuzzle}`;
+      if (!progress.bestTimes[puzzleKey] || timeSeconds < progress.bestTimes[puzzleKey]) {
+        newProgress.bestTimes = {
+          ...progress.bestTimes,
+          [puzzleKey]: timeSeconds,
+        };
+      }
+    }
+
+    newProgress.xp = progress.xp + xpEarned;
+    newProgress.level = calculateLevel(newProgress.xp);
+    newProgress.totalStars = progress.totalStars + stars;
+    newProgress.puzzlesSolved = progress.puzzlesSolved + 1;
+    newProgress.currentStreak = progress.currentStreak + 1;
+    newProgress.bestStreak = Math.max(progress.bestStreak, newProgress.currentStreak);
 
     // Check for new badges
     const badges = checkNewBadges(newProgress, !gameState.usedHints, timeSeconds);
@@ -211,18 +297,10 @@ export function useGameState() {
       newProgress.badges = [...newProgress.badges, ...badges.map(b => b.id)];
     }
 
-    // Save best time
-    const puzzleKey = `${gameState.currentWorld}-${gameState.currentPuzzle}`;
-    if (!progress.bestTimes[puzzleKey] || timeSeconds < progress.bestTimes[puzzleKey]) {
-      newProgress.bestTimes = {
-        ...progress.bestTimes,
-        [puzzleKey]: timeSeconds,
-      };
-    }
-
     setProgress(newProgress);
     setEarnedStars(stars);
     setNewBadges(badges);
+    setBonusXP(dailyBonusEarned);
     setShowingVictory(true);
   }, [gameState, progress, setProgress]);
 
@@ -245,13 +323,20 @@ export function useGameState() {
     setProgress(DEFAULT_PROGRESS);
   }, [setProgress]);
 
+  const isTodayCompleted = useCallback(() => {
+    const todayKey = getTodayKey();
+    return progress.dailyChallenges[todayKey]?.completed || false;
+  }, [progress.dailyChallenges]);
+
   return {
     gameState,
     progress,
     showingVictory,
     earnedStars,
     newBadges,
+    bonusXP,
     startPuzzle,
+    startDailyChallenge,
     selectCell,
     makeMove,
     clearCell,
@@ -260,5 +345,6 @@ export function useGameState() {
     updateProfile,
     resetProgress,
     setShowingVictory,
+    isTodayCompleted,
   };
 }

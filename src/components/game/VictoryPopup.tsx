@@ -1,6 +1,6 @@
-import { Badge, WORLDS, XP_PER_STAR } from '@/lib/gameData';
+import { Badge, WORLDS, XP_PER_STAR, DAILY_BONUS_XP } from '@/lib/gameData';
 import { cn } from '@/lib/utils';
-import { Star, Trophy, Zap, ArrowRight, RotateCcw } from 'lucide-react';
+import { Star, Trophy, Zap, ArrowRight, RotateCcw, Calendar, Flame } from 'lucide-react';
 
 interface VictoryPopupProps {
   worldId: number;
@@ -8,6 +8,9 @@ interface VictoryPopupProps {
   stars: number;
   timeSeconds: number;
   newBadges: Badge[];
+  isDaily: boolean;
+  bonusXP: number;
+  dailyStreak: number;
   onNextPuzzle: () => void;
   onReplay: () => void;
   onBackToMap: () => void;
@@ -19,20 +22,28 @@ export function VictoryPopup({
   stars,
   timeSeconds,
   newBadges,
+  isDaily,
+  bonusXP,
+  dailyStreak,
   onNextPuzzle,
   onReplay,
   onBackToMap,
 }: VictoryPopupProps) {
-  const world = WORLDS.find(w => w.id === worldId)!;
-  const isLastPuzzle = puzzleIndex >= world.puzzleCount - 1;
+  const world = WORLDS.find(w => w.id === worldId);
+  const isLastPuzzle = world ? puzzleIndex >= world.puzzleCount - 1 : true;
   const xpEarned = stars * XP_PER_STAR;
+  const totalXP = xpEarned + bonusXP;
 
   return (
     <div className="fixed inset-0 bg-background/90 flex items-center justify-center z-50 p-4">
       <div className="w-full max-w-md bg-card border-2 border-primary rounded-lg p-6 text-center animate-bounce-in">
         {/* Trophy icon */}
         <div className="relative inline-block mb-4">
-          <Trophy className="w-16 h-16 text-accent animate-pulse-glow" />
+          {isDaily ? (
+            <Calendar className="w-16 h-16 text-accent animate-pulse-glow" />
+          ) : (
+            <Trophy className="w-16 h-16 text-accent animate-pulse-glow" />
+          )}
           <div className="absolute -top-2 -right-2 text-2xl animate-star-burst">
             ✨
           </div>
@@ -40,10 +51,17 @@ export function VictoryPopup({
 
         {/* Title */}
         <h2 className="font-pixel text-xl text-primary text-glow-pink mb-2">
-          PUSSEL KLARAT!
+          {isDaily ? 'DAGLIG KLARAD!' : 'PUSSEL KLARAT!'}
         </h2>
         <p className="font-retro text-muted-foreground mb-4">
-          {world.name} - Pussel {puzzleIndex + 1}
+          {isDaily ? (
+            <span className="flex items-center justify-center gap-2">
+              <Flame className="w-4 h-4 text-neon-red" />
+              {dailyStreak} dagars streak!
+            </span>
+          ) : (
+            `${world?.name} - Pussel ${puzzleIndex + 1}`
+          )}
         </p>
 
         {/* Stars */}
@@ -74,10 +92,20 @@ export function VictoryPopup({
             <p className="text-muted-foreground text-sm">XP</p>
             <p className="text-xl text-neon-green flex items-center gap-1">
               <Zap className="w-4 h-4" />
-              +{xpEarned}
+              +{totalXP}
             </p>
           </div>
         </div>
+
+        {/* Daily bonus callout */}
+        {isDaily && bonusXP > 0 && (
+          <div className="mb-4 p-3 bg-accent/10 border border-accent/30 rounded-lg">
+            <div className="flex items-center justify-center gap-2 text-accent font-retro">
+              <Calendar className="w-4 h-4" />
+              <span>Daglig bonus: +{bonusXP} XP!</span>
+            </div>
+          </div>
+        )}
 
         {/* New badges */}
         {newBadges.length > 0 && (
@@ -96,7 +124,7 @@ export function VictoryPopup({
 
         {/* Buttons */}
         <div className="flex flex-col gap-3">
-          {!isLastPuzzle && (
+          {!isDaily && !isLastPuzzle && (
             <button
               onClick={onNextPuzzle}
               className="neon-button neon-button-green flex items-center justify-center gap-2"
@@ -106,17 +134,23 @@ export function VictoryPopup({
             </button>
           )}
           
-          <button
-            onClick={onReplay}
-            className="neon-button neon-button-blue flex items-center justify-center gap-2"
-          >
-            <RotateCcw className="w-4 h-4" />
-            <span>Spela Igen</span>
-          </button>
+          {!isDaily && (
+            <button
+              onClick={onReplay}
+              className="neon-button neon-button-blue flex items-center justify-center gap-2"
+            >
+              <RotateCcw className="w-4 h-4" />
+              <span>Spela Igen</span>
+            </button>
+          )}
           
           <button
             onClick={onBackToMap}
-            className="font-retro text-muted-foreground hover:text-foreground transition-colors py-2"
+            className={cn(
+              isDaily 
+                ? "neon-button neon-button-pink"
+                : "font-retro text-muted-foreground hover:text-foreground transition-colors py-2"
+            )}
           >
             Tillbaka till kartan
           </button>

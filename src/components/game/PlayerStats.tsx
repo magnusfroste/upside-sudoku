@@ -1,13 +1,12 @@
 import { PlayerProgress, BADGES, calculateLevel, xpToNextLevel, XP_PER_LEVEL, AVATARS } from '@/lib/gameData';
 import { cn } from '@/lib/utils';
-import { Star, Zap, Flame, Trophy, Settings, X } from 'lucide-react';
+import { Star, Zap, Flame, Trophy, Settings, Calendar } from 'lucide-react';
 import { useState } from 'react';
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from '@/components/ui/dialog';
 
 interface PlayerStatsProps {
@@ -31,7 +30,7 @@ export function PlayerStats({ progress, onUpdateProfile, onResetProgress }: Play
   };
 
   return (
-    <div className="w-full max-w-md mx-auto mb-6">
+    <div className="w-full max-w-2xl mx-auto mb-6">
       {/* Main stats bar */}
       <div className="flex items-center gap-3 p-3 bg-card/50 border border-border/50 rounded-lg">
         {/* Avatar & Name */}
@@ -75,6 +74,12 @@ export function PlayerStats({ progress, onUpdateProfile, onResetProgress }: Play
               <Trophy className="w-3 h-3" />
               {progress.puzzlesSolved}
             </span>
+            {progress.dailyStreak > 0 && (
+              <span className="flex items-center gap-1 text-accent">
+                <Calendar className="w-3 h-3" />
+                {progress.dailyStreak}
+              </span>
+            )}
           </div>
         </div>
 
@@ -88,7 +93,7 @@ export function PlayerStats({ progress, onUpdateProfile, onResetProgress }: Play
 
       {/* Settings Dialog */}
       <Dialog open={showSettings} onOpenChange={setShowSettings}>
-        <DialogContent className="bg-card border-primary">
+        <DialogContent className="bg-card border-primary max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="font-pixel text-primary text-glow-pink">
               Inställningar
@@ -163,6 +168,8 @@ export function PlayerStats({ progress, onUpdateProfile, onResetProgress }: Play
             <div className="p-3 bg-muted/30 rounded-lg font-retro text-sm space-y-1">
               <p>Totalt lösta pussel: <span className="text-neon-green">{progress.puzzlesSolved}</span></p>
               <p>Bästa streak: <span className="text-neon-red">{progress.bestStreak}</span></p>
+              <p>Daglig streak: <span className="text-accent">{progress.dailyStreak}</span></p>
+              <p>Bästa daglig streak: <span className="text-accent">{progress.bestDailyStreak}</span></p>
               <p>Total XP: <span className="text-secondary">{progress.xp}</span></p>
             </div>
 
