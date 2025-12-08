@@ -1,0 +1,50 @@
+import { SYMBOLS_4X4 } from '@/lib/gameData';
+import { cn } from '@/lib/utils';
+import { Eraser } from 'lucide-react';
+
+interface NumberPadProps {
+  gridSize: 4 | 6;
+  onNumberClick: (num: number) => void;
+  onClear: () => void;
+  disabled: boolean;
+}
+
+export function NumberPad({ gridSize, onNumberClick, onClear, disabled }: NumberPadProps) {
+  const numbers = gridSize === 4 
+    ? SYMBOLS_4X4.map((s, i) => ({ display: s, value: i + 1 }))
+    : Array.from({ length: 6 }, (_, i) => ({ display: String(i + 1), value: i + 1 }));
+
+  return (
+    <div className="flex flex-wrap justify-center gap-2 sm:gap-3 mt-4">
+      {numbers.map(({ display, value }) => (
+        <button
+          key={value}
+          className={cn(
+            'w-12 h-12 sm:w-14 sm:h-14 rounded-lg font-retro text-xl sm:text-2xl',
+            'border-2 border-secondary/50 bg-card/80 text-secondary',
+            'hover:bg-secondary hover:text-secondary-foreground',
+            'hover:box-glow-blue transition-all duration-200',
+            'active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed',
+          )}
+          onClick={() => onNumberClick(value)}
+          disabled={disabled}
+        >
+          {display}
+        </button>
+      ))}
+      <button
+        className={cn(
+          'w-12 h-12 sm:w-14 sm:h-14 rounded-lg',
+          'border-2 border-destructive/50 bg-card/80 text-destructive',
+          'hover:bg-destructive hover:text-destructive-foreground',
+          'transition-all duration-200',
+          'active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed',
+        )}
+        onClick={onClear}
+        disabled={disabled}
+      >
+        <Eraser className="w-6 h-6 mx-auto" />
+      </button>
+    </div>
+  );
+}
