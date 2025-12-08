@@ -40,6 +40,7 @@ export interface PlayerProgress {
   dailyChallenges: Record<string, DailyChallenge>;
   dailyStreak: number;
   bestDailyStreak: number;
+  tutorialCompleted: boolean;
 }
 
 export const WORLDS: World[] = [
@@ -201,4 +202,5 @@ export const DEFAULT_PROGRESS: PlayerProgress = {
   dailyChallenges: {},
   dailyStreak: 0,
   bestDailyStreak: 0,
+  tutorialCompleted: false,
 };
