@@ -1,4 +1,4 @@
-import { Timer, TimerOff, Lightbulb, ArrowLeft } from 'lucide-react';
+import { Timer, TimerOff, Lightbulb, ArrowLeft, Calendar } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { WORLDS } from '@/lib/gameData';
 
@@ -8,6 +8,7 @@ interface GameHeaderProps {
   elapsedTime: number;
   timerEnabled: boolean;
   hintsRemaining: number;
+  isDaily: boolean;
   onToggleTimer: () => void;
   onUseHint: () => void;
   onBack: () => void;
@@ -25,6 +26,7 @@ export function GameHeader({
   elapsedTime,
   timerEnabled,
   hintsRemaining,
+  isDaily,
   onToggleTimer,
   onUseHint,
   onBack,
@@ -69,11 +71,25 @@ export function GameHeader({
       {/* World info & Hints */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <span className="text-2xl">{world?.icon}</span>
-          <div>
-            <p className="font-pixel text-xs text-primary text-glow-pink">{world?.name}</p>
-            <p className="font-retro text-muted-foreground">Pussel {puzzleIndex + 1}/10</p>
-          </div>
+          {isDaily ? (
+            <>
+              <div className="text-2xl p-1 bg-accent/20 rounded-lg">
+                <Calendar className="w-6 h-6 text-accent" />
+              </div>
+              <div>
+                <p className="font-pixel text-xs text-accent text-glow-yellow">DAGLIG UTMANING</p>
+                <p className="font-retro text-muted-foreground">6x6 rutnät</p>
+              </div>
+            </>
+          ) : (
+            <>
+              <span className="text-2xl">{world?.icon}</span>
+              <div>
+                <p className="font-pixel text-xs text-primary text-glow-pink">{world?.name}</p>
+                <p className="font-retro text-muted-foreground">Pussel {puzzleIndex + 1}/10</p>
+              </div>
+            </>
+          )}
         </div>
 
         <button
@@ -88,7 +104,7 @@ export function GameHeader({
           )}
         >
           <Lightbulb className="w-5 h-5" />
-          <span>Eleven&apos;s Power</span>
+          <span className="hidden sm:inline">Eleven&apos;s Power</span>
           <span className="bg-neon-purple/20 px-2 py-0.5 rounded">{hintsRemaining}</span>
         </button>
       </div>

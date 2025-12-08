@@ -2,24 +2,32 @@ export type GridSize = 4 | 6;
 export type Cell = number | null;
 export type Grid = Cell[][];
 
+// Seeded random number generator for daily puzzles
+function seededRandom(seed: number): () => number {
+  return function() {
+    seed = (seed * 1103515245 + 12345) & 0x7fffffff;
+    return seed / 0x7fffffff;
+  };
+}
+
 // Generate a complete valid Sudoku grid
-function generateComplete(size: GridSize): Grid {
+function generateComplete(size: GridSize, random?: () => number): Grid {
   const grid: Grid = Array(size).fill(null).map(() => Array(size).fill(null));
-  fillGrid(grid, size);
+  fillGrid(grid, size, random);
   return grid;
 }
 
-function fillGrid(grid: Grid, size: GridSize): boolean {
+function fillGrid(grid: Grid, size: GridSize, random?: () => number): boolean {
   const emptyCell = findEmpty(grid, size);
   if (!emptyCell) return true;
 
   const [row, col] = emptyCell;
-  const numbers = shuffleArray([...Array(size)].map((_, i) => i + 1));
+  const numbers = shuffleArray([...Array(size)].map((_, i) => i + 1), random);
 
   for (const num of numbers) {
     if (isValid(grid, row, col, num, size)) {
       grid[row][col] = num;
-      if (fillGrid(grid, size)) return true;
+      if (fillGrid(grid, size, random)) return true;
       grid[row][col] = null;
     }
   }
@@ -60,18 +68,20 @@ function isValid(grid: Grid, row: number, col: number, num: number, size: GridSi
   return true;
 }
 
-function shuffleArray<T>(array: T[]): T[] {
+function shuffleArray<T>(array: T[], random?: () => number): T[] {
   const shuffled = [...array];
+  const rand = random || Math.random;
   for (let i = shuffled.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
+    const j = Math.floor(rand() * (i + 1));
     [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
   }
   return shuffled;
 }
 
 // Create puzzle by removing cells
-export function generatePuzzle(size: GridSize, difficulty: number): { puzzle: Grid; solution: Grid } {
-  const solution = generateComplete(size);
+export function generatePuzzle(size: GridSize, difficulty: number, seed?: number): { puzzle: Grid; solution: Grid } {
+  const random = seed !== undefined ? seededRandom(seed) : undefined;
+  const solution = generateComplete(size, random);
   const puzzle: Grid = solution.map(row => [...row]);
 
   // Calculate cells to remove based on difficulty (1-10)
@@ -81,7 +91,8 @@ export function generatePuzzle(size: GridSize, difficulty: number): { puzzle: Gr
   const cellsToRemove = Math.floor((maxRemove * difficulty) / 10);
 
   const positions = shuffleArray(
-    [...Array(totalCells)].map((_, i) => [Math.floor(i / size), i % size] as [number, number])
+    [...Array(totalCells)].map((_, i) => [Math.floor(i / size), i % size] as [number, number]),
+    random
   );
 
   let removed = 0;

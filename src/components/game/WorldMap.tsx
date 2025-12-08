@@ -12,8 +12,8 @@ export function WorldMap({ progress, onSelectWorld, onSelectPuzzle }: WorldMapPr
   const unlockedWorlds = getUnlockedWorlds(progress.totalStars);
 
   return (
-    <div className="w-full max-w-2xl mx-auto space-y-4">
-      <div className="text-center mb-8">
+    <div className="w-full space-y-4">
+      <div className="text-center mb-6">
         <h2 className="font-pixel text-xl sm:text-2xl text-primary text-glow-pink mb-2">
           Välj Värld
         </h2>
@@ -28,7 +28,6 @@ export function WorldMap({ progress, onSelectWorld, onSelectPuzzle }: WorldMapPr
           const isUnlocked = unlockedWorlds.includes(world.id);
           const worldProgress = progress.worldProgress[world.id] || [];
           const completedPuzzles = worldProgress.length;
-          const totalStarsInWorld = completedPuzzles * 3; // Max possible
 
           return (
             <div
@@ -36,7 +35,7 @@ export function WorldMap({ progress, onSelectWorld, onSelectPuzzle }: WorldMapPr
               className={cn(
                 'relative border-2 rounded-lg p-4 transition-all duration-300',
                 isUnlocked
-                  ? `border-${world.color}/50 hover:border-${world.color} cursor-pointer hover:scale-[1.02]`
+                  ? 'border-border/50 hover:border-primary cursor-pointer hover:scale-[1.02]'
                   : 'border-muted/30 opacity-60'
               )}
               onClick={() => isUnlocked && onSelectWorld(world.id)}
@@ -64,7 +63,7 @@ export function WorldMap({ progress, onSelectWorld, onSelectPuzzle }: WorldMapPr
                 <div className="flex-1">
                   <h3 className={cn(
                     'font-pixel text-sm sm:text-base mb-1',
-                    isUnlocked ? `text-${world.color}` : 'text-muted-foreground'
+                    isUnlocked ? 'text-primary' : 'text-muted-foreground'
                   )}>
                     {world.name}
                   </h3>
@@ -81,15 +80,15 @@ export function WorldMap({ progress, onSelectWorld, onSelectPuzzle }: WorldMapPr
                   </div>
                 </div>
 
-                {isUnlocked && (
+                {isUnlocked && completedPuzzles > 0 && (
                   <div className="flex items-center gap-1 text-accent">
                     <Star className="w-4 h-4 fill-current" />
-                    <span className="font-retro">{Math.min(completedPuzzles * 2, totalStarsInWorld)}</span>
+                    <span className="font-retro">{completedPuzzles * 2}</span>
                   </div>
                 )}
               </div>
 
-              {/* Puzzle grid (collapsed by default, could expand) */}
+              {/* Puzzle grid */}
               {isUnlocked && completedPuzzles > 0 && (
                 <div className="flex flex-wrap gap-2 mt-3 pt-3 border-t border-border/30">
                   {Array.from({ length: world.puzzleCount }, (_, i) => {
