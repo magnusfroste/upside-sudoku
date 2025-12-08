@@ -13,6 +13,7 @@ import { VictoryPopup } from '@/components/game/VictoryPopup';
 import { DailyChallengeCard } from '@/components/game/DailyChallengeCard';
 import { SoundControls } from '@/components/game/SoundControls';
 import { Tutorial } from '@/components/game/Tutorial';
+import { Leaderboard } from '@/components/game/Leaderboard';
 
 type Screen = 'menu' | 'worldMap' | 'puzzleSelect' | 'game';
 
@@ -213,6 +214,9 @@ export default function Index() {
             progress={progress}
             onStartDaily={handleStartDaily}
           />
+
+          {/* Leaderboard */}
+          <Leaderboard progress={progress} />
           
           {/* World Map */}
           <WorldMap
