@@ -27,9 +27,48 @@ export interface GameState {
 
 const MAX_HINTS = 3;
 const DAILY_HINTS = 2; // Fewer hints for daily challenge
+const SAVED_GAME_KEY = 'upside-down-sudoku-saved-game';
+
+interface SavedGameState {
+  currentWorld: number;
+  currentPuzzle: number;
+  puzzle: Grid;
+  solution: Grid;
+  playerGrid: Grid;
+  hintsRemaining: number;
+  elapsedTime: number;
+  usedHints: boolean;
+  isDaily: boolean;
+  savedAt: number;
+}
+
+function loadSavedGame(): SavedGameState | null {
+  try {
+    const saved = localStorage.getItem(SAVED_GAME_KEY);
+    if (saved) {
+      return JSON.parse(saved);
+    }
+  } catch {
+    // Ignore errors
+  }
+  return null;
+}
+
+function saveGameState(state: SavedGameState | null) {
+  try {
+    if (state) {
+      localStorage.setItem(SAVED_GAME_KEY, JSON.stringify(state));
+    } else {
+      localStorage.removeItem(SAVED_GAME_KEY);
+    }
+  } catch {
+    // Ignore errors
+  }
+}
 
 export function useGameState() {
   const [progress, setProgress] = useLocalStorage<PlayerProgress>('upside-down-sudoku-progress', DEFAULT_PROGRESS);
+  const [savedGame, setSavedGame] = useState<SavedGameState | null>(() => loadSavedGame());
   
   const [gameState, setGameState] = useState<GameState>({
     currentWorld: 1,
@@ -68,6 +107,33 @@ export function useGameState() {
     return () => clearInterval(interval);
   }, [gameState.isComplete, gameState.timerEnabled, gameState.puzzle.length]);
 
+  // Auto-save game state when playing
+  useEffect(() => {
+    if (gameState.puzzle.length === 0 || gameState.isComplete) return;
+    
+    // Check if there's actual progress (at least one cell filled by player)
+    const hasProgress = gameState.playerGrid.some((row, ri) => 
+      row.some((cell, ci) => cell !== null && gameState.puzzle[ri][ci] === null)
+    );
+    
+    if (hasProgress) {
+      const saveData: SavedGameState = {
+        currentWorld: gameState.currentWorld,
+        currentPuzzle: gameState.currentPuzzle,
+        puzzle: gameState.puzzle,
+        solution: gameState.solution,
+        playerGrid: gameState.playerGrid,
+        hintsRemaining: gameState.hintsRemaining,
+        elapsedTime: gameState.elapsedTime,
+        usedHints: gameState.usedHints,
+        isDaily: gameState.isDaily,
+        savedAt: Date.now(),
+      };
+      saveGameState(saveData);
+      setSavedGame(saveData);
+    }
+  }, [gameState.playerGrid, gameState.puzzle, gameState.isComplete]);
+
   const startPuzzle = useCallback((worldId: number, puzzleIndex: number) => {
     const world = WORLDS.find(w => w.id === worldId)!;
     const difficulty = getDifficulty(worldId, puzzleIndex);
@@ -92,6 +158,9 @@ export function useGameState() {
     });
     setShowingVictory(false);
     setBonusXP(0);
+    // Clear saved game when starting new puzzle
+    saveGameState(null);
+    setSavedGame(null);
   }, []);
 
   const startDailyChallenge = useCallback(() => {
@@ -121,6 +190,38 @@ export function useGameState() {
     });
     setShowingVictory(false);
     setBonusXP(0);
+    // Clear saved game when starting new puzzle
+    saveGameState(null);
+    setSavedGame(null);
+  }, []);
+
+  const resumeSavedGame = useCallback(() => {
+    if (!savedGame) return;
+    
+    setGameState({
+      currentWorld: savedGame.currentWorld,
+      currentPuzzle: savedGame.currentPuzzle,
+      puzzle: savedGame.puzzle,
+      solution: savedGame.solution,
+      playerGrid: savedGame.playerGrid,
+      selectedCell: null,
+      hintsRemaining: savedGame.hintsRemaining,
+      hintCell: null,
+      errors: new Set(),
+      isComplete: false,
+      startTime: Date.now() - (savedGame.elapsedTime * 1000),
+      elapsedTime: savedGame.elapsedTime,
+      timerEnabled: true,
+      usedHints: savedGame.usedHints,
+      isDaily: savedGame.isDaily,
+    });
+    setShowingVictory(false);
+    setBonusXP(0);
+  }, [savedGame]);
+
+  const clearSavedGame = useCallback(() => {
+    saveGameState(null);
+    setSavedGame(null);
   }, []);
 
   const selectCell = useCallback((row: number, col: number) => {
@@ -302,6 +403,9 @@ export function useGameState() {
     setNewBadges(badges);
     setBonusXP(dailyBonusEarned);
     setShowingVictory(true);
+    // Clear saved game on victory
+    saveGameState(null);
+    setSavedGame(null);
   }, [gameState, progress, setProgress]);
 
   const toggleTimer = useCallback(() => {
@@ -345,12 +449,15 @@ export function useGameState() {
   return {
     gameState,
     progress,
+    savedGame,
     showingVictory,
     earnedStars,
     newBadges,
     bonusXP,
     startPuzzle,
     startDailyChallenge,
+    resumeSavedGame,
+    clearSavedGame,
     selectCell,
     makeMove,
     clearCell,

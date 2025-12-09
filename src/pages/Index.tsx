@@ -25,12 +25,15 @@ export default function Index() {
   const {
     gameState,
     progress,
+    savedGame,
     showingVictory,
     earnedStars,
     newBadges,
     bonusXP,
     startPuzzle,
     startDailyChallenge,
+    resumeSavedGame,
+    clearSavedGame,
     selectCell,
     makeMove,
     clearCell,
@@ -81,6 +84,18 @@ export default function Index() {
     sounds.initialize();
     setScreen('worldMap');
   }, [sounds]);
+
+  const handleResumeSavedGame = useCallback(() => {
+    sounds.playClick();
+    sounds.initialize();
+    resumeSavedGame();
+    setScreen('game');
+  }, [sounds, resumeSavedGame]);
+
+  const handleClearSavedGame = useCallback(() => {
+    sounds.playClick();
+    clearSavedGame();
+  }, [sounds, clearSavedGame]);
 
   const handleSelectWorld = useCallback((worldId: number) => {
     sounds.playClick();
@@ -203,7 +218,13 @@ export default function Index() {
 
       {/* Main Menu */}
       {screen === 'menu' && (
-        <MainMenu progress={progress} onStartGame={handleStartGame} />
+        <MainMenu 
+          progress={progress} 
+          savedGame={savedGame}
+          onStartGame={handleStartGame} 
+          onResumeSavedGame={handleResumeSavedGame}
+          onClearSavedGame={handleClearSavedGame}
+        />
       )}
 
       {/* World Map */}

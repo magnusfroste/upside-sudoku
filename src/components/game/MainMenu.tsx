@@ -1,13 +1,50 @@
-import { PlayerProgress } from '@/lib/gameData';
+import { PlayerProgress, WORLDS } from '@/lib/gameData';
 import { cn } from '@/lib/utils';
-import { Play, Trophy, Star, Calendar, Flame } from 'lucide-react';
+import { Play, Trophy, Star, Flame, RotateCcw, X } from 'lucide-react';
+
+interface SavedGameInfo {
+  currentWorld: number;
+  currentPuzzle: number;
+  elapsedTime: number;
+  isDaily: boolean;
+  savedAt: number;
+}
 
 interface MainMenuProps {
   progress: PlayerProgress;
+  savedGame: SavedGameInfo | null;
   onStartGame: () => void;
+  onResumeSavedGame: () => void;
+  onClearSavedGame: () => void;
 }
 
-export function MainMenu({ progress, onStartGame }: MainMenuProps) {
+function formatTime(seconds: number): string {
+  const mins = Math.floor(seconds / 60);
+  const secs = seconds % 60;
+  return `${mins}:${secs.toString().padStart(2, '0')}`;
+}
+
+function getTimeSince(timestamp: number): string {
+  const now = Date.now();
+  const diff = now - timestamp;
+  const minutes = Math.floor(diff / 60000);
+  const hours = Math.floor(diff / 3600000);
+  const days = Math.floor(diff / 86400000);
+  
+  if (days > 0) return `${days} dag${days > 1 ? 'ar' : ''} sedan`;
+  if (hours > 0) return `${hours} timm${hours > 1 ? 'ar' : 'e'} sedan`;
+  if (minutes > 0) return `${minutes} minut${minutes > 1 ? 'er' : ''} sedan`;
+  return 'just nu';
+}
+
+export function MainMenu({ progress, savedGame, onStartGame, onResumeSavedGame, onClearSavedGame }: MainMenuProps) {
+  const getSavedGameLabel = () => {
+    if (!savedGame) return '';
+    if (savedGame.isDaily) return 'Dagens utmaning';
+    const world = WORLDS.find(w => w.id === savedGame.currentWorld);
+    return `${world?.name || 'Värld'} - Pussel ${savedGame.currentPuzzle + 1}`;
+  };
+
   return (
     <div className="min-h-[80vh] flex flex-col items-center justify-center text-center px-4">
       {/* Animated title */}
@@ -59,6 +96,41 @@ export function MainMenu({ progress, onStartGame }: MainMenuProps) {
         </div>
       )}
 
+      {/* Saved game resume card */}
+      {savedGame && (
+        <div className="mb-6 p-4 border-2 border-secondary/50 bg-secondary/10 rounded-lg max-w-sm w-full">
+          <div className="flex items-center justify-between mb-2">
+            <span className="font-retro text-sm text-muted-foreground">Sparat pussel</span>
+            <button 
+              onClick={onClearSavedGame}
+              className="text-muted-foreground hover:text-destructive transition-colors p-1"
+              title="Ta bort sparat pussel"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+          <div className="font-pixel text-secondary text-lg mb-2">{getSavedGameLabel()}</div>
+          <div className="flex items-center justify-between text-sm text-muted-foreground font-retro mb-3">
+            <span>Tid: {formatTime(savedGame.elapsedTime)}</span>
+            <span>{getTimeSince(savedGame.savedAt)}</span>
+          </div>
+          <button
+            onClick={onResumeSavedGame}
+            className={cn(
+              'w-full group relative px-6 py-3 font-pixel text-base',
+              'border-2 border-secondary bg-secondary/20 text-secondary',
+              'hover:bg-secondary hover:text-secondary-foreground',
+              'transition-all duration-300',
+            )}
+          >
+            <span className="flex items-center justify-center gap-2">
+              <RotateCcw className="w-5 h-5" />
+              FORTSÄTT PUSSEL
+            </span>
+          </button>
+        </div>
+      )}
+
       {/* Play button */}
       <button
         onClick={onStartGame}
@@ -72,7 +144,7 @@ export function MainMenu({ progress, onStartGame }: MainMenuProps) {
       >
         <span className="flex items-center gap-3">
           <Play className="w-6 h-6 group-hover:animate-pulse" />
-          {progress.puzzlesSolved > 0 ? 'FORTSÄTT' : 'STARTA'}
+          {savedGame ? 'NYTT SPEL' : (progress.puzzlesSolved > 0 ? 'FORTSÄTT' : 'STARTA')}
         </span>
       </button>
 
