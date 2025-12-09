@@ -26,21 +26,21 @@ export function GameBoard({
   const boxCols = gridSize === 4 ? 2 : 3;
 
   return (
-    <div className="relative w-full max-w-md mx-auto">
+    <div className="relative w-full max-w-sm mx-auto">
       {/* Scanlines overlay */}
       <div className="absolute inset-0 scanlines pointer-events-none z-10 opacity-30" />
       
-      {/* Grid container */}
+      {/* Grid container - use aspect-square to maintain proportions */}
       <div
         className={cn(
-          'grid gap-0 pixel-border bg-card/50 p-1',
+          'grid gap-0.5 pixel-border bg-card/50 p-1 aspect-square',
           gridSize === 4 && 'grid-cols-4',
           gridSize === 6 && 'grid-cols-6',
         )}
       >
         {playerGrid.map((row, rowIndex) =>
           row.map((cell, colIndex) => {
-            const isFixed = puzzle[rowIndex][colIndex] !== null;
+            const isFixed = puzzle[rowIndex]?.[colIndex] !== null;
             const isSelected = selectedCell?.[0] === rowIndex && selectedCell?.[1] === colIndex;
             const isHighlighted = selectedCell && (
               selectedCell[0] === rowIndex || 
