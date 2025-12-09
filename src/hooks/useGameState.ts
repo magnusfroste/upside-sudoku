@@ -7,6 +7,13 @@ import {
 } from '@/lib/gameData';
 import { useLocalStorage } from './useLocalStorage';
 
+export interface Move {
+  row: number;
+  col: number;
+  previousValue: number | null;
+  newValue: number | null;
+}
+
 export interface GameState {
   currentWorld: number;
   currentPuzzle: number;
@@ -23,6 +30,7 @@ export interface GameState {
   timerEnabled: boolean;
   usedHints: boolean;
   isDaily: boolean;
+  moveHistory: Move[];
 }
 
 const MAX_HINTS = 3;
@@ -86,6 +94,7 @@ export function useGameState() {
     timerEnabled: true,
     usedHints: false,
     isDaily: false,
+    moveHistory: [],
   });
 
   const [showingVictory, setShowingVictory] = useState(false);
@@ -155,6 +164,7 @@ export function useGameState() {
       timerEnabled: true,
       usedHints: false,
       isDaily: false,
+      moveHistory: [],
     });
     setShowingVictory(false);
     setBonusXP(0);
@@ -187,6 +197,7 @@ export function useGameState() {
       timerEnabled: true,
       usedHints: false,
       isDaily: true,
+      moveHistory: [],
     });
     setShowingVictory(false);
     setBonusXP(0);
@@ -214,6 +225,7 @@ export function useGameState() {
       timerEnabled: true,
       usedHints: savedGame.usedHints,
       isDaily: savedGame.isDaily,
+      moveHistory: [],
     });
     setShowingVictory(false);
     setBonusXP(0);
@@ -239,6 +251,7 @@ export function useGameState() {
     const [row, col] = gameState.selectedCell;
     if (gameState.puzzle[row][col] !== null) return;
 
+    const previousValue = gameState.playerGrid[row][col];
     const newGrid = gameState.playerGrid.map(r => [...r]);
     newGrid[row][col] = value;
 
@@ -254,11 +267,15 @@ export function useGameState() {
 
     const complete = isPuzzleComplete(newGrid, gameState.solution);
 
+    // Add to move history
+    const newMove: Move = { row, col, previousValue, newValue: value };
+
     setGameState(prev => ({
       ...prev,
       playerGrid: newGrid,
       errors: newErrors,
       isComplete: complete,
+      moveHistory: [...prev.moveHistory, newMove],
     }));
 
     if (complete) {
@@ -272,6 +289,9 @@ export function useGameState() {
     const [row, col] = gameState.selectedCell;
     if (gameState.puzzle[row][col] !== null) return;
 
+    const previousValue = gameState.playerGrid[row][col];
+    if (previousValue === null) return; // Nothing to clear
+
     const newGrid = gameState.playerGrid.map(r => [...r]);
     newGrid[row][col] = null;
 
@@ -279,10 +299,42 @@ export function useGameState() {
     const newErrors = new Set(gameState.errors);
     newErrors.delete(cellKey);
 
+    // Add to move history
+    const newMove: Move = { row, col, previousValue, newValue: null };
+
     setGameState(prev => ({
       ...prev,
       playerGrid: newGrid,
       errors: newErrors,
+      moveHistory: [...prev.moveHistory, newMove],
+    }));
+  }, [gameState]);
+
+  const undoMove = useCallback(() => {
+    if (gameState.moveHistory.length === 0) return;
+
+    const lastMove = gameState.moveHistory[gameState.moveHistory.length - 1];
+    const { row, col, previousValue } = lastMove;
+
+    const newGrid = gameState.playerGrid.map(r => [...r]);
+    newGrid[row][col] = previousValue;
+
+    const cellKey = `${row}-${col}`;
+    const newErrors = new Set(gameState.errors);
+    
+    // Recalculate error state for this cell
+    if (previousValue !== null && previousValue !== gameState.solution[row][col]) {
+      newErrors.add(cellKey);
+    } else {
+      newErrors.delete(cellKey);
+    }
+
+    setGameState(prev => ({
+      ...prev,
+      playerGrid: newGrid,
+      errors: newErrors,
+      moveHistory: prev.moveHistory.slice(0, -1),
+      selectedCell: [row, col],
     }));
   }, [gameState]);
 
@@ -461,6 +513,7 @@ export function useGameState() {
     selectCell,
     makeMove,
     clearCell,
+    undoMove,
     useHint,
     toggleTimer,
     updateProfile,

@@ -37,6 +37,7 @@ export default function Index() {
     selectCell,
     makeMove,
     clearCell,
+    undoMove,
     useHint,
     toggleTimer,
     updateProfile,
@@ -178,6 +179,11 @@ export default function Index() {
     clearCell();
   }, [clearCell, sounds]);
 
+  const handleUndo = useCallback(() => {
+    sounds.playClick();
+    undoMove();
+  }, [undoMove, sounds]);
+
   const handleUseHint = useCallback(() => {
     sounds.playHint();
     useHint();
@@ -288,7 +294,9 @@ export default function Index() {
             gridSize={gridSize}
             onNumberClick={handleNumberClick}
             onClear={handleClear}
+            onUndo={handleUndo}
             disabled={gameState.isComplete}
+            canUndo={gameState.moveHistory.length > 0}
           />
         </div>
       )}
