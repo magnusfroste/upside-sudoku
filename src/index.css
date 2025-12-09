@@ -213,3 +213,24 @@
     @apply border-neon-green text-neon-green hover:bg-neon-green hover:text-background box-glow-green;
   }
 }
+
+@keyframes star-burst-fly {
+  0% {
+    transform: translate(-50%, -50%) translateX(0) translateY(0) scale(0);
+    opacity: 1;
+  }
+  50% {
+    transform: translate(-50%, -50%) 
+      translateX(calc(cos(var(--angle)) * var(--distance))) 
+      translateY(calc(sin(var(--angle)) * var(--distance))) 
+      scale(1.2);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, -50%) 
+      translateX(calc(cos(var(--angle)) * var(--distance) * 1.5)) 
+      translateY(calc(sin(var(--angle)) * var(--distance) * 1.5 + 50px)) 
+      scale(0.5);
+    opacity: 0;
+  }
+}
