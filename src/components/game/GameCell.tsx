@@ -29,12 +29,13 @@ export function GameCell({
   return (
     <button
       className={cn(
-        'game-cell w-full h-full text-xl sm:text-2xl font-retro',
+        'game-cell w-full h-full flex items-center justify-center',
+        'text-xl sm:text-2xl font-retro text-foreground',
         'transition-all duration-200',
-        isFixed && 'fixed',
+        isFixed && 'fixed text-secondary',
         isSelected && 'selected',
         isHighlighted && !isSelected && 'highlighted',
-        isError && 'error',
+        isError && 'error text-destructive',
         isHint && 'hint',
         gridSize === 4 && 'text-2xl sm:text-3xl',
       )}
