@@ -12,12 +12,14 @@ interface NumberPadProps {
 }
 
 export function NumberPad({ gridSize, onNumberClick, onClear, onUndo, disabled, canUndo }: NumberPadProps) {
-  const numbers = gridSize === 4 
+  // Ensure we get the correct number of buttons based on grid size
+  const size = gridSize === 4 ? 4 : 6;
+  const numbers = size === 4 
     ? SYMBOLS_4X4.map((s, i) => ({ display: s, value: i + 1 }))
-    : Array.from({ length: 6 }, (_, i) => ({ display: String(i + 1), value: i + 1 }));
+    : [1, 2, 3, 4, 5, 6].map(n => ({ display: String(n), value: n }));
 
   return (
-    <div className="flex flex-wrap justify-center gap-2 sm:gap-3 mt-4">
+    <div className="flex flex-wrap justify-center items-center gap-2 sm:gap-3 mt-6">
       {numbers.map(({ display, value }) => (
         <button
           key={value}
