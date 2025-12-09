@@ -29,7 +29,7 @@ export function GameCell({
   return (
     <button
       className={cn(
-        'game-cell aspect-square text-xl sm:text-2xl font-retro',
+        'game-cell w-full h-full text-xl sm:text-2xl font-retro',
         'transition-all duration-200',
         isFixed && 'fixed',
         isSelected && 'selected',
