@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
 import { Badge, WORLDS, XP_PER_STAR } from '@/lib/gameData';
 import { cn } from '@/lib/utils';
-import { Star, Trophy, Zap, ArrowRight, RotateCcw, Calendar, Flame } from 'lucide-react';
+import { Star, Trophy, Zap, ArrowRight, RotateCcw, Calendar, Flame, Share2 } from 'lucide-react';
 import { Confetti, Sparkles, StarBurst } from './Confetti';
+import { ShareResults } from './ShareResults';
 
 interface VictoryPopupProps {
   worldId: number;
@@ -40,6 +41,16 @@ export function VictoryPopup({
   
   const [showConfetti, setShowConfetti] = useState(false);
   const [showSparkles, setShowSparkles] = useState(false);
+  const [showShareModal, setShowShareModal] = useState(false);
+
+  const getTodayDate = () => {
+    const now = new Date();
+    return now.toLocaleDateString('sv-SE', { 
+      year: 'numeric', 
+      month: 'long', 
+      day: 'numeric' 
+    });
+  };
 
   // Trigger effects on mount
   useEffect(() => {
@@ -211,6 +222,16 @@ export function VictoryPopup({
                 <span>Spela Igen</span>
               </button>
             )}
+
+            {isDaily && (
+              <button
+                onClick={() => setShowShareModal(true)}
+                className="neon-button neon-button-blue flex items-center justify-center gap-2"
+              >
+                <Share2 className="w-4 h-4" />
+                <span>Dela resultat</span>
+              </button>
+            )}
             
             <button
               onClick={onBackToMap}
@@ -225,6 +246,17 @@ export function VictoryPopup({
           </div>
         </div>
       </div>
+
+      {/* Share modal */}
+      {showShareModal && (
+        <ShareResults
+          stars={stars}
+          timeSeconds={timeSeconds}
+          dailyStreak={dailyStreak}
+          date={getTodayDate()}
+          onClose={() => setShowShareModal(false)}
+        />
+      )}
     </>
   );
 }
