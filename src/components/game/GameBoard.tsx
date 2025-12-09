@@ -59,6 +59,7 @@ export function GameBoard({
               <div
                 key={`${rowIndex}-${colIndex}`}
                 className={cn(
+                  'aspect-square',
                   isRightBorder && 'border-r-2 border-r-primary/50',
                   isBottomBorder && 'border-b-2 border-b-primary/50',
                 )}
