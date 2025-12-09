@@ -22,33 +22,35 @@ export function GameCell({
   gridSize,
   onClick,
 }: GameCellProps) {
-  const displayValue = value !== null
-    ? (gridSize === 4 ? SYMBOLS_4X4[value - 1] : value.toString())
-    : '';
+  // Ensure proper display value
+  const getDisplayValue = () => {
+    if (value === null) return '';
+    if (gridSize === 4) {
+      return SYMBOLS_4X4[value - 1] || value.toString();
+    }
+    return value.toString();
+  };
 
   return (
     <button
       className={cn(
-        'game-cell w-full h-full flex items-center justify-center',
-        'text-xl sm:text-2xl font-retro text-foreground',
-        'transition-all duration-200',
-        isFixed && 'fixed text-secondary',
-        isSelected && 'selected',
-        isHighlighted && !isSelected && 'highlighted',
-        isError && 'error text-destructive',
-        isHint && 'hint',
-        gridSize === 4 && 'text-2xl sm:text-3xl',
+        'w-full h-full flex items-center justify-center',
+        'border border-border/30 bg-card/80',
+        'text-lg sm:text-xl md:text-2xl font-retro',
+        'transition-all duration-200 cursor-pointer',
+        'hover:bg-muted/50',
+        isFixed && 'text-secondary cursor-default',
+        !isFixed && 'text-foreground',
+        isSelected && 'bg-primary/30 border-primary box-glow-pink',
+        isHighlighted && !isSelected && 'bg-secondary/20',
+        isError && 'text-destructive animate-pulse',
+        isHint && 'bg-neon-green/30 box-glow-green',
+        gridSize === 4 && 'text-xl sm:text-2xl md:text-3xl',
       )}
       onClick={onClick}
       disabled={isFixed}
     >
-      <span className={cn(
-        'transition-all duration-200',
-        isError && 'animate-shake',
-        isHint && 'animate-pulse-glow',
-      )}>
-        {displayValue}
-      </span>
+      {getDisplayValue()}
     </button>
   );
 }
