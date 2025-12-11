@@ -321,6 +321,19 @@ export default function Index() {
 
       {/* Background effects */}
       <div className="fixed inset-0 retro-grid opacity-5 pointer-events-none -z-10" />
+
+      {/* Footer */}
+      <footer className="fixed bottom-2 left-0 right-0 text-center text-xs text-muted-foreground/50 font-retro">
+        <span>Open Source by </span>
+        <a 
+          href="https://github.com/magnusfroste" 
+          target="_blank" 
+          rel="noopener noreferrer"
+          className="hover:text-primary transition-colors"
+        >
+          Magnus Froste
+        </a>
+      </footer>
     </div>
   );
 }
