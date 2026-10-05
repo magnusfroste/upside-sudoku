@@ -1,0 +1,10 @@
+# Upside Sudoku
+
+> Upside Sudoku är en äventyrlig sudoku-variant som tränar koncentration och logiskt tänkande. Gratis skolapp för låg- och mellanstadiet.
+
+Upside Sudoku är ett gratis sudokuspel för barn i låg- och mellanstadiet med retroinspirerad 80-talsstil. Spelet hjälper barn att träna koncentration och logiskt tänkande genom enkla 4x4- och 6x6-pussel. Spelaren reser genom fem världar med en berättelse, samlar stjärnor, badges och XP, och kan använda ledtrådar ("Eleven's Power") när det kör fast. Det finns dagliga utmaningar med bonusbelöningar, timer-utmaningar, lokal topplista och möjlighet att spara och återuppta pussel. Spelet är open source och kräver inget konto.
+
+## Viktiga länkar
+
+- [Startsida](https://upside-sudoku.lovable.app/)
+- [Källkod på GitHub](https://github.com/magnusfroste)
