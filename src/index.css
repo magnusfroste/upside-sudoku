@@ -1,3 +1,9 @@
+/* Fredoka - Skolappar-typsnitt */
+@font-face { font-family: 'Fredoka'; font-weight: 400; font-style: normal; font-display: swap; src: url('/fonts/fredoka-400.ttf') format('truetype'); }
+@font-face { font-family: 'Fredoka'; font-weight: 500; font-style: normal; font-display: swap; src: url('/fonts/fredoka-500.ttf') format('truetype'); }
+@font-face { font-family: 'Fredoka'; font-weight: 600; font-style: normal; font-display: swap; src: url('/fonts/fredoka-600.ttf') format('truetype'); }
+@font-face { font-family: 'Fredoka'; font-weight: 700; font-style: normal; font-display: swap; src: url('/fonts/fredoka-700.ttf') format('truetype'); }
+
 @import "@fontsource/press-start-2p/400.css";
 @import "@fontsource/vt323/400.css";
 
@@ -238,6 +244,11 @@
 
 /* Emojibrickor ska ritas med systemets emojitypsnitt, inte pixeltypsnittet */
 .font-emoji {
-  font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", "Twemoji Mozilla", sans-serif;
+  font-family: 'Fredoka', 'Nunito', system-ui, -apple-system, 'Segoe UI', sans-serif;
   line-height: 1;
+}
+
+/* Fredoka - gäller hela appen */
+html, body, button, input, select, textarea {
+  font-family: 'Fredoka', 'Nunito', system-ui, -apple-system, 'Segoe UI', sans-serif;
 }
