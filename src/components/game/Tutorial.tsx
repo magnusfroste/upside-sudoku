@@ -35,10 +35,10 @@ export function Tutorial({ onComplete, onSkip }: TutorialProps) {
       content: (
         <div className="space-y-4">
           <p className="text-lg">
-            Välkommen till <span className="text-primary font-pixel">Upside Down Sudoku</span>!
+            Välkommen till <span className="text-primary font-pixel">Upside Sudoku</span>!
           </p>
           <p>
-            Du ska hjälpa till att lösa mystiska pussel och rädda Hawkins från mörka krafter.
+            Du ska hjälpa till att lösa mystiska pussel och rädda Stjärnköping från mörka krafter.
           </p>
           <p className="text-muted-foreground">
             Låt oss lära oss hur man spelar!
@@ -219,7 +219,7 @@ export function Tutorial({ onComplete, onSkip }: TutorialProps) {
           <div className="flex justify-center gap-4 my-4">
             <div className="text-center">
               <span className="text-3xl">🔬</span>
-              <p className="text-xs text-muted-foreground">Hawkins Lab</p>
+              <p className="text-xs text-muted-foreground">Stjärnköping Lab</p>
             </div>
             <div className="text-center">
               <span className="text-3xl">🕹️</span>
@@ -231,7 +231,7 @@ export function Tutorial({ onComplete, onSkip }: TutorialProps) {
             </div>
             <div className="text-center">
               <span className="text-3xl">🌀</span>
-              <p className="text-xs text-muted-foreground">Upside Down</p>
+              <p className="text-xs text-muted-foreground">Spegelvärlden</p>
             </div>
           </div>
           <p className="text-muted-foreground text-sm">
@@ -254,7 +254,7 @@ export function Tutorial({ onComplete, onSkip }: TutorialProps) {
             </p>
           </div>
           <p>
-            Lycka till med att rädda Hawkins! ⚡
+            Lycka till med att rädda Stjärnköping! ⚡
           </p>
         </div>
       ),
