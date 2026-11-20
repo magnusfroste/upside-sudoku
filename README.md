@@ -6,6 +6,8 @@ XP och märken. Tränar koncentration och logiskt tänkande.
 
 **Spela:** https://sudoku.skolappar.com · En del av [Skolappar](https://www.skolappar.com) – pedagogiska appar av föräldrar · öppen källkod (MIT)
 
+![Upside Sudoku](public/kort.png)
+
 Började som ett Lovable-projekt och körs nu fristående.
 
 ## Vad du kan göra
