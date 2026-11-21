@@ -24,7 +24,8 @@ export function NumberPad({ gridSize, onNumberClick, onClear, onUndo, disabled, 
         <button
           key={value}
           className={cn(
-            'w-12 h-12 sm:w-14 sm:h-14 rounded-lg font-retro text-xl sm:text-2xl',
+            'w-12 h-12 sm:w-14 sm:h-14 rounded-lg text-xl sm:text-2xl',
+            gridSize === 4 ? 'font-emoji' : 'font-retro',
             'border-2 border-secondary/50 bg-card/80 text-secondary',
             'hover:bg-secondary hover:text-secondary-foreground',
             'hover:box-glow-blue transition-all duration-200',

@@ -50,7 +50,7 @@ export function MainMenu({ progress, savedGame, onStartGame, onResumeSavedGame, 
       {/* Animated title */}
       <div className="mb-8 relative">
         <h1 className="font-pixel text-2xl sm:text-4xl text-primary text-glow-pink animate-pulse-glow leading-relaxed">
-          UPSIDE DOWN
+          SPEGELVÄRLDEN
         </h1>
         <h1 className="font-pixel text-3xl sm:text-5xl text-secondary text-glow-blue mt-2">
           SUDOKU
@@ -73,7 +73,7 @@ export function MainMenu({ progress, savedGame, onStartGame, onResumeSavedGame, 
 
       {/* Tagline */}
       <p className="font-retro text-xl text-muted-foreground mb-8 max-w-md">
-        Lös mystiska pussel och rädda Hawkins från The Upside Down!
+        Lös mystiska pussel och rädda Stjärnköping från Spegelvärlden!
       </p>
 
       {/* Quick stats if returning player */}

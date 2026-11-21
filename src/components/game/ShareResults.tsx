@@ -78,7 +78,7 @@ export function ShareResults({
     ctx.textAlign = 'center';
     ctx.shadowColor = '#ff00ff';
     ctx.shadowBlur = 20;
-    ctx.fillText('SUDOKU QUEST', 300, 70);
+    ctx.fillText('UPSIDE SUDOKU', 300, 70);
 
     // Subtitle
     ctx.font = '16px monospace';
@@ -147,7 +147,7 @@ export function ShareResults({
     ctx.shadowBlur = 0;
     ctx.font = '12px monospace';
     ctx.fillStyle = '#666666';
-    ctx.fillText('Spela på sudokuquest.lovable.app', 300, 370);
+    ctx.fillText('Spela på sudoku.skolappar.com', 300, 370);
 
     return canvas.toDataURL('image/png');
   };
@@ -167,7 +167,7 @@ export function ShareResults({
         
         if (navigator.canShare({ files: [file] })) {
           await navigator.share({
-            title: 'Sudoku Quest - Daglig Utmaning',
+            title: 'Upside Sudoku - Daglig Utmaning',
             text: `Jag klarade dagens Sudoku på ${formatTime(timeSeconds)} med ${stars} stjärnor! 🌟`,
             files: [file],
           });
@@ -197,7 +197,7 @@ export function ShareResults({
 
   const handleCopyText = () => {
     const starsEmoji = '⭐'.repeat(stars) + '☆'.repeat(3 - stars);
-    const text = `Sudoku Quest - Daglig Utmaning 🎮\n${date}\n\n${starsEmoji}\n⏱️ Tid: ${formatTime(timeSeconds)}\n🔥 Streak: ${dailyStreak} dagar\n\nSpela på sudokuquest.lovable.app`;
+    const text = `Upside Sudoku - Daglig Utmaning 🎮\n${date}\n\n${starsEmoji}\n⏱️ Tid: ${formatTime(timeSeconds)}\n🔥 Streak: ${dailyStreak} dagar\n\nSpela på sudoku.skolappar.com`;
     
     navigator.clipboard.writeText(text).then(() => {
       setCopied(true);

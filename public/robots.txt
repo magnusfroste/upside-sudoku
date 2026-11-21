@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://upside-sudoku.lovable.app/sitemap.xml
+Sitemap: https://sudoku.skolappar.com/sitemap.xml
