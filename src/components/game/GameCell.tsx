@@ -45,7 +45,7 @@ export function GameCell({
         isHighlighted && !isSelected && 'bg-secondary/20',
         isError && 'text-destructive animate-pulse',
         isHint && 'bg-neon-green/30 box-glow-green',
-        gridSize === 4 && 'text-xl sm:text-2xl md:text-3xl',
+        gridSize === 4 && 'text-xl sm:text-2xl md:text-3xl font-emoji',
       )}
       onClick={onClick}
       disabled={isFixed}

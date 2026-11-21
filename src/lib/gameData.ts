@@ -46,7 +46,7 @@ export interface PlayerProgress {
 export const WORLDS: World[] = [
   {
     id: 1,
-    name: "Hawkins Lab",
+    name: "Stjärnköping Lab",
     description: "Hemliga experiment väntar...",
     icon: "🔬",
     color: "world-lab",
@@ -76,7 +76,7 @@ export const WORLDS: World[] = [
   },
   {
     id: 4,
-    name: "The Upside Down",
+    name: "Spegelvärlden",
     description: "Mörka krafter lurar...",
     icon: "🌀",
     color: "world-upside",
