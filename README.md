@@ -8,7 +8,7 @@ XP och märken. Tränar koncentration och logiskt tänkande.
 
 ![Upside Sudoku](public/kort.png)
 
-Började som ett Lovable-projekt och körs nu fristående.
+Körs fristående.
 
 ## Vad du kan göra
 
