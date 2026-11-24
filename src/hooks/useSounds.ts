@@ -16,6 +16,7 @@ import {
   setMusicVolume,
   setSfxVolume,
 } from '@/lib/sounds';
+import { report } from '@/lib/skolappar';
 
 interface SoundSettings {
   musicEnabled: boolean;
@@ -121,14 +122,16 @@ export function useSounds() {
       startBackgroundMusic();
     } else {
       stopBackgroundMusic();
+      report('sound_off');
     }
     
     setSettings(prev => ({ ...prev, musicEnabled: newEnabled }));
   }, [settings.musicEnabled, initialize, setSettings]);
 
   const toggleSfx = useCallback(() => {
+    if (settings.sfxEnabled) report('sound_off');
     setSettings(prev => ({ ...prev, sfxEnabled: !prev.sfxEnabled }));
-  }, [setSettings]);
+  }, [settings.sfxEnabled, setSettings]);
 
   const updateMusicVolume = useCallback((volume: number) => {
     setMusicVolume(volume);
