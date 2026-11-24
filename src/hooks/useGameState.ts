@@ -6,6 +6,12 @@ import {
   getDailyDifficulty, getDailySeed, DAILY_BONUS_XP, DAILY_STREAK_BONUS 
 } from '@/lib/gameData';
 import { useLocalStorage } from './useLocalStorage';
+import { report } from '@/lib/skolappar';
+
+// The puzzle's place in the whole journey (world 1 puzzle 1 is level 1), as skolappar's level.
+function journeyLevel(worldId: number, puzzleIndex: number): number {
+  return WORLDS.filter(w => w.id < worldId).reduce((sum, w) => sum + w.puzzleCount, 0) + puzzleIndex + 1;
+}
 
 export interface Move {
   row: number;
@@ -171,6 +177,8 @@ export function useGameState() {
     // Clear saved game when starting new puzzle
     saveGameState(null);
     setSavedGame(null);
+    report('round_start');
+    report('level', journeyLevel(worldId, puzzleIndex));
   }, []);
 
   const startDailyChallenge = useCallback(() => {
@@ -204,6 +212,7 @@ export function useGameState() {
     // Clear saved game when starting new puzzle
     saveGameState(null);
     setSavedGame(null);
+    report('round_start');
   }, []);
 
   const resumeSavedGame = useCallback(() => {
@@ -229,6 +238,8 @@ export function useGameState() {
     });
     setShowingVictory(false);
     setBonusXP(0);
+    report('round_start');
+    if (!savedGame.isDaily) report('level', journeyLevel(savedGame.currentWorld, savedGame.currentPuzzle));
   }, [savedGame]);
 
   const clearSavedGame = useCallback(() => {
@@ -261,6 +272,7 @@ export function useGameState() {
 
     if (!isCorrect) {
       newErrors.add(cellKey);
+      report('hint');
     } else {
       newErrors.delete(cellKey);
     }
@@ -345,6 +357,7 @@ export function useGameState() {
     if (!hint) return;
 
     const [row, col, value] = hint;
+    report('hint');
     
     setGameState(prev => ({
       ...prev,
@@ -455,6 +468,7 @@ export function useGameState() {
     setNewBadges(badges);
     setBonusXP(dailyBonusEarned);
     setShowingVictory(true);
+    report('round_done', Math.round((stars / 3) * 100));
     // Clear saved game on victory
     saveGameState(null);
     setSavedGame(null);
