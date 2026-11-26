@@ -147,7 +147,7 @@ export function ShareResults({
     ctx.shadowBlur = 0;
     ctx.font = '12px monospace';
     ctx.fillStyle = '#666666';
-    ctx.fillText('Spela på sudoku.skolappar.com', 300, 370);
+    ctx.fillText('Spela på sudoku.skolappar.org', 300, 370);
 
     return canvas.toDataURL('image/png');
   };
@@ -197,7 +197,7 @@ export function ShareResults({
 
   const handleCopyText = () => {
     const starsEmoji = '⭐'.repeat(stars) + '☆'.repeat(3 - stars);
-    const text = `Upside Sudoku - Daglig Utmaning 🎮\n${date}\n\n${starsEmoji}\n⏱️ Tid: ${formatTime(timeSeconds)}\n🔥 Streak: ${dailyStreak} dagar\n\nSpela på sudoku.skolappar.com`;
+    const text = `Upside Sudoku - Daglig Utmaning 🎮\n${date}\n\n${starsEmoji}\n⏱️ Tid: ${formatTime(timeSeconds)}\n🔥 Streak: ${dailyStreak} dagar\n\nSpela på sudoku.skolappar.org`;
     
     navigator.clipboard.writeText(text).then(() => {
       setCopied(true);

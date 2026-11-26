@@ -4,7 +4,7 @@ Sudoku för barn i låg- och mellanstadiet, i retrostil med 80-talskänsla. Barn
 pussel – 4×4 med symboler och 6×6 med siffror – reser genom fem världar och samlar stjärnor,
 XP och märken. Tränar koncentration och logiskt tänkande.
 
-**Spela:** https://sudoku.skolappar.com · En del av [Skolappar](https://www.skolappar.com) – pedagogiska appar av föräldrar · öppen källkod (MIT)
+**Spela:** https://sudoku.skolappar.org · En del av [Skolappar](https://www.skolappar.org) – pedagogiska appar av föräldrar · öppen källkod (MIT)
 
 ![Upside Sudoku](public/kort.png)
 

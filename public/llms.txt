@@ -6,5 +6,5 @@ Upside Sudoku är ett gratis sudokuspel för barn i låg- och mellanstadiet med 
 
 ## Viktiga länkar
 
-- [Startsida](https://sudoku.skolappar.com/)
+- [Startsida](https://sudoku.skolappar.org/)
 - [Källkod på GitHub](https://github.com/magnusfroste)
